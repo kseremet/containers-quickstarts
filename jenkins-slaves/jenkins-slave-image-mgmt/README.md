@@ -30,10 +30,10 @@ For existing Jenkins servers, the slave can be added by using the following step
 2. Click on **Manage Jenkins** and then **Configure System**
 3. Under the *Cloud* section, locate the *Kubernetes* Plugin. Click the *Add Pod Template* dropdown and select **
 4. Enter the following details
-	1. Name: jenkins-slave-image-mgmt
-	2. Labels: jenkins-slave-image-mgmt 
+	1. Name: skopeo
+	2. Labels: skopeo
 	3. Docker image
-		1. Using the `oc` command line, run `oc get is jenkins-slave-image-mgmt --template='{{ .status.dockerImageRepository }}`. A value similar to *172.30.186.87:5000/jenkins/jenkins-slave-image-mgmt* should be used
+		1. Using the `oc` command line, run `oc get is skopeo --template='{{ .status.dockerImageRepository }}`. A value similar to *172.30.186.87:5000/jenkins/skopeo* should be used
 	4. Jenkins slave root directory: `/tmp`
 5. Click **Save** to apply the changes
 	
@@ -43,14 +43,23 @@ For existing Jenkins servers, the slave can be added by using the following step
 The following provides an example of how to make use of the image within a Jenkins [pipeline](https://jenkins.io/doc/book/pipeline/) script to execute the *inspect* function of the *skopeo* command line tool:
 
 ```
-node('jenkins-slave-image-mgmt') { 
+node('skopeo') { 
 
-  stage('Inspect Image') {
+  stage('Inspect an Image') {
     sh """
 
     set +x
         
     skopeo inspect docker://docker.io/fedora
+
+    """
+  }
+  stage('Copy an Image') {
+    sh """
+
+    set +x
+        
+    skopeo copy skopeo --tls-verify=false copy --dest-creds $dest-creds --src-creds $src-creds <src-pull-spec> <dest-pull-spec>
 
     """
   }
