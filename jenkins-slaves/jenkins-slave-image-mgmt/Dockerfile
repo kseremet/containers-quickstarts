@@ -1,22 +1,20 @@
 FROM registry.access.redhat.com/openshift3/jenkins-slave-base-rhel7
 
-MAINTAINER Andrew Block <ablock@redhat.com>
+MAINTAINER Koray Seremet <koray@redhat.com>
 
-LABEL com.redhat.component="jenkins-slave-image-mgmt" \
-      name="jenkins-slave-image-mgmt" \
+LABEL com.redhat.component="skopeo" \
+      name="skopeo" \
       architecture="x86_64" \
-      io.k8s.display-name="Jenkins Slave Image Management" \
-      io.k8s.description="Image management tools on top of the jenkins slave base image" \
+      io.k8s.display-name="Skopeo Jenkins Slave" \
+      io.k8s.description="Skopeo image management tool on top of the jenkins slave base image" \
       io.openshift.tags="openshift,jenkins,slave,copy"
-
-ENV SKOPEO_BIN=https://github.com/sabre1041/ocp-support-resources/blob/master/skopeo/bin/skopeo?raw=true
 
 USER root
 
 COPY etc/policy.json /etc/containers/
 
-RUN curl -L -o /usr/bin/skopeo $SKOPEO_BIN && \
-    chmod +x /usr/bin/skopeo && \
+RUN yum -y --setopt=tsflags=nodocs --enablerepo=rhel-7-server-extras-rpms install skopeo && \
+    yum -y clean all && \
     chown -R 1001:0 /etc/containers $HOME /usr/bin/skopeo  && \
     chmod -R g+rw /etc/containers $HOME /usr/bin/skopeo
 
